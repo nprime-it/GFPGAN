@@ -25,7 +25,8 @@ def main():
         '-v', '--version', type=str, default='1.3', help='GFPGAN model version. Option: 1 | 1.2 | 1.3. Default: 1.3')
     parser.add_argument(
         '-s', '--upscale', type=int, default=2, help='The final upsampling scale of the image. Default: 2')
-
+    parser.add_argument(
+            '--gpu_no', type=int, default=0, help='device no')
     parser.add_argument(
         '--bg_upsampler', type=str, default='realesrgan', help='background upsampler. Default: realesrgan')
     parser.add_argument(
@@ -44,7 +45,7 @@ def main():
     parser.add_argument('-w', '--weight', type=float, default=0.5, help='Adjustable weights.')
     args = parser.parse_args()
 
-    args = parser.parse_args()
+    #args = parser.parse_args()
 
     # ------------------------ input & output ------------------------
     if args.input.endswith('/'):
@@ -74,7 +75,8 @@ def main():
                 tile=args.bg_tile,
                 tile_pad=10,
                 pre_pad=0,
-                half=True)  # need to set False in CPU mode
+                half=True,
+                gpu_id=args.gpu_no)  # need to set False in CPU mode
     else:
         bg_upsampler = None
 
@@ -114,16 +116,20 @@ def main():
     if not os.path.isfile(model_path):
         # download pre-trained models from url
         model_path = url
-
+    print("GPU NO : %s" % args.gpu_no)
     restorer = GFPGANer(
         model_path=model_path,
         upscale=args.upscale,
         arch=arch,
         channel_multiplier=channel_multiplier,
-        bg_upsampler=bg_upsampler)
+        bg_upsampler=bg_upsampler,
+        device=torch.device(args.gpu_no)
+        )
 
     # ------------------------ restore ------------------------
     for img_path in img_list:
+        if os.path.isfile(img_path) == False:
+            continue
         # read image
         img_name = os.path.basename(img_path)
         print(f'Processing {img_name} ...')
@@ -172,3 +178,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
