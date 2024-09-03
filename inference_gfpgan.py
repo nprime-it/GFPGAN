@@ -122,8 +122,9 @@ def main():
         upscale=args.upscale,
         arch=arch,
         channel_multiplier=channel_multiplier,
-        bg_upsampler=bg_upsampler,
-        device=torch.device(args.gpu_no)
+        bg_upsampler=bg_upsampler
+        #bg_upsampler=bg_upsampler,
+        #device=torch.device(args.gpu_no)
         )
 
     # ------------------------ restore ------------------------
